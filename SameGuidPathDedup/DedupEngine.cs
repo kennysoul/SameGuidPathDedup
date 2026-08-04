@@ -212,7 +212,15 @@ namespace SameGuidPathDedup
                         .ThenByDescending(i => i.DateCreated.ToUnixTimeSeconds())
                         .ThenBy(i => i.Id.ToString())  // i.Id is Guid; ToString for stable order
                         .First();
-                    var doomed = items.Where(i => i.Id != kept.Id).ToList();
+                    // IMPORTANT: cannot filter "doomed" by i.Id != kept.Id here.
+                    // BaseItem.Id maps to the DB GUID column, and the exact bug
+                    // this plugin targets produces TWO PHYSICAL ROWS SHARING THE
+                    // SAME GUID VALUE. Comparing by Id would treat every row in
+                    // the group as "the same as kept" and doomed would always be
+                    // empty. Use reference identity instead — GetItemList returns
+                    // a distinct BaseItem instance per physical row even when
+                    // their Id values collide.
+                    var doomed = items.Where(i => !ReferenceEquals(i, kept)).ToList();
 
                     if (doomed.Count == 0) continue;
 
