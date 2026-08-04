@@ -1,0 +1,22 @@
+## .NET build artifacts
+bin/
+obj/
+*.dll
+*.pdb
+*.user
+*.suo
+
+## Build outputs
+artifacts/
+
+## Rider / VS Code
+.idea/
+.vs/
+.vscode/
+
+## OS junk
+.DS_Store
+Thumbs.db
+
+## Logs
+*.log
