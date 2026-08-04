@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1</TargetFrameworks>
     <TargetFramework></TargetFramework>
     <RootNamespace>SameGuidPathDedup</RootNamespace>
     <AssemblyName>SameGuidPathDedup</AssemblyName>
@@ -25,12 +25,6 @@
 
   <ItemGroup>
     <PackageReference Include="MediaBrowser.Server.Core" Version="4.9.1.90" />
-    <!--
-      MediaBrowser.Model 4.9.1.90 references System.Memory 4.0.2.0; the SDK
-      does not propagate it transitively in netstandard2.0 builds. System.Memory
-      4.5.4 ships the 4.0.2.0 assembly; earlier versions ship 4.0.1.x.
-    -->
-    <PackageReference Include="System.Memory" Version="4.5.5" />
   </ItemGroup>
 
 </Project>
