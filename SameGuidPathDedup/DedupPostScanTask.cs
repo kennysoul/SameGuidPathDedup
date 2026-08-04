@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediaBrowser.Controller.Library;
 using MediaBrowser.Controller.Persistence;
-using MediaBrowser.Controller.Plugins;
 using MediaBrowser.Model.Logging;
 
 namespace SameGuidPathDedup

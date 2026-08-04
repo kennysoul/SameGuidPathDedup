@@ -1,8 +1,9 @@
 using System;
-using System.Collections.Generic;
 using MediaBrowser.Common.Plugins;
+using MediaBrowser.Common.Configuration;
 using MediaBrowser.Model.Logging;
 using MediaBrowser.Model.Plugins;
+using MediaBrowser.Model.Serialization;
 
 namespace SameGuidPathDedup
 {
@@ -10,10 +11,11 @@ namespace SameGuidPathDedup
     /// Plugin entry point. Loads on every Emby startup.
     ///
     /// GUID override strategy:
-    ///   In Emby 4.9.x there is no longer a public IPluginManager that plugins can
-    ///   use to enumerate peer plugins. We therefore cannot detect a GUID collision
-    ///   at construction time. Instead, the admin can set PluginIdOverride in the
-    ///   plugin's config to a new GUID; Emby uses that on the next restart.
+    ///   In Emby 4.9.x the public plugin surface does not expose IPluginManager,
+    ///   so we cannot enumerate peer plugins to detect a GUID collision at
+    ///   construction time. Admins who run into a GUID conflict can set
+    ///   PluginIdOverride in the plugin's config (a new GUID) and restart Emby;
+    ///   the next load picks up the new GUID.
     /// </summary>
     public class Plugin : BasePlugin<PluginConfiguration>
     {
@@ -21,10 +23,9 @@ namespace SameGuidPathDedup
             Guid.Parse("58a3ade8-ca3f-4b2b-b036-a0ccb3d3f809");
 
         /// <summary>
-        /// Singleton accessor. Set in the constructor (BasePlugin's constructor is
-        /// called first; we assign Instance on the first line of our body). Other
-        /// classes in the plugin assembly (tasks, REST service) read this to get
-        /// the live configuration.
+        /// Singleton accessor. Set in the constructor; other classes in the plugin
+        /// assembly (DedupScheduledTask, DedupPostScanTask) read this to get the
+        /// live configuration.
         /// </summary>
         public static Plugin Instance { get; private set; }
 
@@ -61,12 +62,5 @@ namespace SameGuidPathDedup
         public override string Description =>
             "Merges duplicate MediaItems rows that share the same GUID and Path. " +
             "Triggered manually, every 15 minutes, and after every library scan.";
-
-        public override IEnumerable<PluginPageInfo> GetPages()
-        {
-            // No custom configuration pages for now. Edit config XML directly
-            // under /var/lib/emby/plugins/SameGuidPathDedup/1.0.0.0/config.xml.
-            yield break;
-        }
     }
 }

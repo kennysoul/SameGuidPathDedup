@@ -2,22 +2,21 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using MediaBrowser.Controller.Library;
 using MediaBrowser.Controller.Persistence;
-using MediaBrowser.Controller.ScheduledTasks;
+using MediaBrowser.Controller.Library;
 using MediaBrowser.Model.Logging;
+using MediaBrowser.Model.Tasks;
 
 namespace SameGuidPathDedup
 {
     /// <summary>
     /// Periodic dedup runner. Registered as an Emby ScheduledTask so admins can:
     ///   - see it under Dashboard → Scheduled Tasks,
-    ///   - change the interval (Dashboard configures this automatically because
-    ///     we implement IScheduledTask),
+    ///   - change the interval (Dashboard configures this automatically),
     ///   - click "Run" for an on-demand trigger.
     ///
-    /// The default interval is 15 minutes. Changes via the Dashboard are persisted
-    /// to /var/lib/emby/plugins/SameGuidPathDedup/1.0.0.0/tasks.xml.
+    /// Default interval: 15 minutes. Changes via the Dashboard persist to
+    /// /var/lib/emby/plugins/SameGuidPathDedup/1.0.0.0/tasks.xml.
     /// </summary>
     public class DedupScheduledTask : IScheduledTask
     {
