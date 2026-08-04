@@ -198,12 +198,14 @@ namespace SameGuidPathDedup
                     $"[SameGuidPathDedup] Path groups: {groups.Count} groups have duplicates");
 
                 var result = new List<DedupGroup>();
+                int scannedCount = 0, keptCount = 0;
 
                 foreach (var grp in groups)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
                     var items = grp.ToList();
+                    scannedCount++;
 
                     var kept = items
                         .OrderBy(i => Rank(i))
@@ -214,6 +216,7 @@ namespace SameGuidPathDedup
 
                     if (doomed.Count == 0) continue;
 
+                    keptCount++;
                     result.Add(new DedupGroup
                     {
                         Path = grp.Key,
@@ -221,6 +224,9 @@ namespace SameGuidPathDedup
                         DeleteItems = doomed
                     });
                 }
+
+                _logger.Info(
+                    $"[SameGuidPathDedup] After Rank filter: scanned={scannedCount}, kept={keptCount}, result={result.Count}");
 
                 return result;
             }, cancellationToken);
