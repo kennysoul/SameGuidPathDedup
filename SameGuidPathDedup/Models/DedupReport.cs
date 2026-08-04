@@ -1,21 +1,25 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using MediaBrowser.Controller.Entities;
 
 namespace SameGuidPathDedup.Models
 {
     /// <summary>
-    /// A cluster of MediaItems rows that share the same GUID and Path.
+    /// A cluster of MediaItems rows that share the same Path.
     ///
     /// Holds both the live <see cref="BaseItem"/> references (needed by
     /// <c>ILibraryManager.DeleteItem</c>) and a serializable
     /// <see cref="DedupCandidate"/> snapshot used for log lines and REST
     /// responses.
+    ///
+    /// Detection: same Path AND &gt;1 rows. On the live server this happens
+    /// only when Emby's identification flow creates a parallel DB row for the
+    /// same logical item (e.g. one row with English filename-derived name,
+    /// one row with Chinese TMDB-derived name). Legitimate multi-version files
+    /// have DIFFERENT Paths (different filenames), so they are never matched.
     /// </summary>
     public class DedupGroup
     {
-        public Guid Guid { get; set; }
         public string Path { get; set; } = "";
 
         /// <summary>The row we will KEEP (live reference).</summary>

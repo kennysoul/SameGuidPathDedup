@@ -42,7 +42,7 @@ namespace SameGuidPathDedup
         public string Name => "Same-GUID-Path Dedup";
         public string Key => "SameGuidPathDedup";
         public string Description =>
-            "Merges duplicate MediaItems rows that share the same GUID and Path.";
+            "Merges duplicate MediaItems rows that share the same Path.";
         public string Category => "Library";
 
         public bool IsHidden => false;
@@ -51,11 +51,14 @@ namespace SameGuidPathDedup
 
         public IEnumerable<TaskTriggerInfo> GetDefaultTriggers()
         {
+            // TaskTriggerInfo.Type is a STRING in Emby 4.9.x, not an enum.
+            // Valid values: "IntervalTrigger", "DailyTrigger",
+            // "WeeklyTrigger", "StartupTrigger".
             return new[]
             {
                 new TaskTriggerInfo
                 {
-                    Type = TaskTriggerInfoType.IntervalTrigger,
+                    Type = "IntervalTrigger",
                     IntervalTicks = TimeSpan.FromMinutes(15).Ticks,
                     MaxRuntimeTicks = TimeSpan.FromMinutes(5).Ticks
                 }

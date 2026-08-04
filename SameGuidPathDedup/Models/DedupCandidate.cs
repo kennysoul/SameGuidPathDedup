@@ -1,4 +1,5 @@
 using System;
+using MediaBrowser.Controller.Entities;
 
 namespace SameGuidPathDedup.Models
 {
@@ -11,13 +12,12 @@ namespace SameGuidPathDedup.Models
         public int Id { get; set; }
         public string Name { get; set; } = "";
         public string Path { get; set; } = "";
-        public Guid Guid { get; set; }
         public DateTime DateCreated { get; set; }
         public DateTime DateModified { get; set; }
         public bool HasProviderIds { get; set; }
         public int? ProviderCount { get; set; }
 
-        public static DedupCandidate From(MediaBrowser.Controller.Entities.BaseItem item)
+        public static DedupCandidate From(BaseItem item)
         {
             int? providerCount = null;
             try
@@ -34,9 +34,9 @@ namespace SameGuidPathDedup.Models
                 Id = item.Id,
                 Name = item.Name ?? "",
                 Path = item.Path ?? "",
-                Guid = item.Guid,
-                DateCreated = item.DateCreated,
-                DateModified = item.DateModified,
+                // BaseItem.DateCreated / DateModified are DateTimeOffset in 4.9.x.
+                DateCreated = item.DateCreated.UtcDateTime,
+                DateModified = item.DateModified.UtcDateTime,
                 HasProviderIds = providerCount.HasValue && providerCount.Value > 0,
                 ProviderCount = providerCount
             };
