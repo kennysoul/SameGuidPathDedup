@@ -9,7 +9,7 @@ namespace SameGuidPathDedup.Models
     /// </summary>
     public class DedupCandidate
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string Name { get; set; } = "";
         public string Path { get; set; } = "";
         public DateTime DateCreated { get; set; }

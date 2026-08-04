@@ -201,7 +201,7 @@ namespace SameGuidPathDedup
                     var kept = items
                         .OrderBy(i => Rank(i))
                         .ThenByDescending(i => i.DateCreated.ToUnixTimeSeconds())
-                        .ThenBy(i => i.Id)
+                        .ThenBy(i => i.Id.ToString())  // i.Id is Guid; ToString for stable order
                         .First();
                     var doomed = items.Where(i => i.Id != kept.Id).ToList();
 
