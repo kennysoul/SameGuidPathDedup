@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediaBrowser.Controller.Library;
@@ -20,38 +19,29 @@ namespace SameGuidPathDedup
         private readonly ILibraryManager _libraryManager;
         private readonly IUserManager _userManager;
         private readonly IItemRepository _itemRepository;
-        private readonly IPluginManager _pluginManager;
         private readonly DedupEngine _engine;
 
         public DedupPostScanTask(
             ILibraryManager libraryManager,
             IUserManager userManager,
             IItemRepository itemRepository,
-            IPluginManager pluginManager,
             ILogManager logManager)
         {
             _logger = logManager.GetLogger("SameGuidPathDedup");
             _libraryManager = libraryManager;
             _userManager = userManager;
             _itemRepository = itemRepository;
-            _pluginManager = pluginManager;
             _engine = new DedupEngine(_logger, _libraryManager, _userManager, _itemRepository);
         }
 
         public Task Run(IProgress<double> progress, CancellationToken cancellationToken)
         {
-            var config = ResolveConfig();
+            var config = Plugin.Instance?.Configuration ?? new PluginConfiguration();
             return _engine.RunOnceAsync(
                 source: "PostScanTask",
                 config: config,
                 progress: progress,
                 cancellationToken: cancellationToken);
-        }
-
-        private PluginConfiguration ResolveConfig()
-        {
-            var plugin = _pluginManager?.Plugins?.OfType<Plugin>().FirstOrDefault();
-            return plugin?.Configuration ?? new PluginConfiguration();
         }
     }
 }

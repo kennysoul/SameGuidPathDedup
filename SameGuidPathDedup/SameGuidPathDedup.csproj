@@ -14,10 +14,17 @@
     <Nullable>disable</Nullable>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <!--
+      SDK auto-generates AssemblyInfo with the assembly title/version/etc., but
+      the auto-generated file would conflict with our Properties/AssemblyInfo.cs
+      (which only carries the Emby-plugin Guid). Turn it off so the only source
+      is Properties/AssemblyInfo.cs.
+    -->
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="mediabrowser.server.core" Version="4.8.0.80" />
+    <PackageReference Include="MediaBrowser.Server.Core" Version="4.9.1.90" />
   </ItemGroup>
 
 </Project>

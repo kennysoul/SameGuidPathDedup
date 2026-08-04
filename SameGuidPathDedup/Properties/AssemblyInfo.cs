@@ -1,11 +1,9 @@
+// Custom assembly metadata. The .csproj sets GenerateAssemblyInfo=false so the
+// SDK does not generate a default AssemblyInfo.cs; this file is the only source
+// of the Emby-required plugin GUID.
 using System.Reflection;
-using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("SameGuidPathDedup")]
-[assembly: AssemblyProduct("SameGuidPathDedup")]
-[assembly: AssemblyCompany("Local")]
-[assembly: AssemblyCopyright("MIT")]
-[assembly: ComVisible(false)]
 [assembly: Guid("58a3ade8-ca3f-4b2b-b036-a0ccb3d3f809")]
 
-// Version is set in the .csproj; this file only carries metadata.
+// Plugin description surfaced in the Emby Dashboard. Other fields (title, version)
+// come from the .csproj <AssemblyVersion> / <Version> properties.

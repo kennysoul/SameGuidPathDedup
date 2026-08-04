@@ -1,9 +1,9 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using MediaBrowser.Controller.Authentication;
 using MediaBrowser.Controller.Library;
 using MediaBrowser.Controller.Persistence;
-using MediaBrowser.Controller.Plugins;
 using MediaBrowser.Model.Logging;
 using MediaBrowser.Model.Serialization;
 using MediaBrowser.Model.Services;
@@ -17,7 +17,7 @@ namespace SameGuidPathDedup
     /// Why this exists: admins sometimes want to trigger a dedup pass from a shell
     /// script or monitor, not from the Dashboard. The endpoints below let you do that.
     ///
-    /// All endpoints require Admin authentication.
+    /// All endpoints require Admin authentication (enforced by [Authenticated]).
     /// </summary>
     [Authenticated(Roles = "Admin")]
     public class DedupRestService : IService
@@ -25,7 +25,6 @@ namespace SameGuidPathDedup
         private readonly ILibraryManager _libraryManager;
         private readonly IUserManager _userManager;
         private readonly IItemRepository _itemRepository;
-        private readonly IPluginManager _pluginManager;
         private readonly IJsonSerializer _jsonSerializer;
         private readonly ILogger _logger;
         private readonly DedupEngine _engine;
@@ -34,14 +33,12 @@ namespace SameGuidPathDedup
             ILibraryManager libraryManager,
             IUserManager userManager,
             IItemRepository itemRepository,
-            IPluginManager pluginManager,
             IJsonSerializer jsonSerializer,
             ILogManager logManager)
         {
             _libraryManager = libraryManager;
             _userManager = userManager;
             _itemRepository = itemRepository;
-            _pluginManager = pluginManager;
             _jsonSerializer = jsonSerializer;
             _logger = logManager.GetLogger("SameGuidPathDedup");
             _engine = new DedupEngine(_logger, _libraryManager, _userManager, _itemRepository);
@@ -91,8 +88,7 @@ namespace SameGuidPathDedup
 
         private PluginConfiguration ResolveConfig()
         {
-            var plugin = _pluginManager?.Plugins?.OfType<Plugin>().FirstOrDefault();
-            return plugin?.Configuration ?? new PluginConfiguration();
+            return Plugin.Instance?.Configuration ?? new PluginConfiguration();
         }
 
         private object ToDto(DedupReport report)
@@ -110,7 +106,9 @@ namespace SameGuidPathDedup
                 {
                     guid = g.Guid,
                     path = g.Path,
-                    keep = new { g.Keep.Id, g.Keep.Name, g.Keep.DateModified, g.Keep.HasProviderIds },
+                    keep = g.Keep == null
+                        ? null
+                        : new { g.Keep.Id, g.Keep.Name, g.Keep.DateModified, g.Keep.HasProviderIds },
                     delete = g.Delete.Select(d => new { d.Id, d.Name, d.DateModified }).ToArray()
                 }).ToArray()
             };

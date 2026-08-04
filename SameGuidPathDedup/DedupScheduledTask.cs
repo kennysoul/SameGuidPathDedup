@@ -1,25 +1,23 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediaBrowser.Controller.Library;
 using MediaBrowser.Controller.Persistence;
-using MediaBrowser.Controller.Plugins;
-using MediaBrowser.Controller.Scheduling;
+using MediaBrowser.Controller.ScheduledTasks;
 using MediaBrowser.Model.Logging;
-using MediaBrowser.Model.Tasks;
 
 namespace SameGuidPathDedup
 {
     /// <summary>
     /// Periodic dedup runner. Registered as an Emby ScheduledTask so admins can:
     ///   - see it under Dashboard → Scheduled Tasks,
-    ///   - change the interval (IConfigurableScheduledTask),
+    ///   - change the interval (Dashboard configures this automatically because
+    ///     we implement IScheduledTask),
     ///   - click "Run" for an on-demand trigger.
     ///
-    /// The default interval is set in PluginConfiguration and overridden here so that
-    /// changes in the Dashboard UI are honored.
+    /// The default interval is 15 minutes. Changes via the Dashboard are persisted
+    /// to /var/lib/emby/plugins/SameGuidPathDedup/1.0.0.0/tasks.xml.
     /// </summary>
     public class DedupScheduledTask : IScheduledTask
     {
@@ -27,21 +25,18 @@ namespace SameGuidPathDedup
         private readonly ILibraryManager _libraryManager;
         private readonly IUserManager _userManager;
         private readonly IItemRepository _itemRepository;
-        private readonly IPluginManager _pluginManager;
         private readonly DedupEngine _engine;
 
         public DedupScheduledTask(
             ILibraryManager libraryManager,
             IUserManager userManager,
             IItemRepository itemRepository,
-            IPluginManager pluginManager,
             ILogManager logManager)
         {
             _logger = logManager.GetLogger("SameGuidPathDedup");
             _libraryManager = libraryManager;
             _userManager = userManager;
             _itemRepository = itemRepository;
-            _pluginManager = pluginManager;
             _engine = new DedupEngine(_logger, _libraryManager, _userManager, _itemRepository);
         }
 
@@ -70,18 +65,12 @@ namespace SameGuidPathDedup
 
         public Task Execute(CancellationToken cancellationToken, IProgress<double> progress)
         {
-            var config = ResolveConfig();
+            var config = Plugin.Instance?.Configuration ?? new PluginConfiguration();
             return _engine.RunOnceAsync(
                 source: "ScheduledTask",
                 config: config,
                 progress: progress,
                 cancellationToken: cancellationToken);
-        }
-
-        private PluginConfiguration ResolveConfig()
-        {
-            var plugin = _pluginManager?.Plugins?.OfType<Plugin>().FirstOrDefault();
-            return plugin?.Configuration ?? new PluginConfiguration();
         }
     }
 }
