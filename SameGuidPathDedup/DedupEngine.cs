@@ -92,6 +92,9 @@ namespace SameGuidPathDedup
                 var candidates = await ScanForCandidatesAsync(config, cancellationToken).ConfigureAwait(false);
                 report.GroupsFound = candidates.Count;
 
+                _logger.Info(
+                    $"[SameGuidPathDedup] Scan complete. groups={report.GroupsFound}");
+
                 foreach (var group in candidates)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -177,6 +180,8 @@ namespace SameGuidPathDedup
                 };
 
                 var all = _itemRepository.GetItemList(query) ?? Enumerable.Empty<BaseItem>();
+                _logger.Info(
+                    $"[SameGuidPathDedup] GetItemList returned {all.Count()} items");
 
                 var nowEpoch = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                 var minAgeEpoch = nowEpoch - config.MinItemAgeSeconds;
@@ -189,6 +194,8 @@ namespace SameGuidPathDedup
                         .GroupBy(i => i.Path, StringComparer.OrdinalIgnoreCase)
                         .Where(g => g.Count() > 1)
                         .ToList();
+                _logger.Info(
+                    $"[SameGuidPathDedup] Path groups: {groups.Count} groups have duplicates");
 
                 var result = new List<DedupGroup>();
 
