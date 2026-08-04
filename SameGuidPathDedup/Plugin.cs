@@ -11,11 +11,17 @@ namespace SameGuidPathDedup
     /// Plugin entry point. Loads on every Emby startup.
     ///
     /// GUID override strategy:
-    ///   In Emby 4.9.x the public plugin surface does not expose IPluginManager,
-    ///   so we cannot enumerate peer plugins to detect a GUID collision at
-    ///   construction time. Admins who run into a GUID conflict can set
-    ///   PluginIdOverride in the plugin's config (a new GUID) and restart Emby;
-    ///   the next load picks up the new GUID.
+    ///   Emby's BasePlugin reads its Configuration at construction time to
+    ///   derive the plugin's configuration file path. Calling
+    ///   this.Configuration from the Id override triggers that load early,
+    ///   and the load can throw if Assembly.Location is null. Therefore the
+    ///   Id override must NOT touch Configuration at all. DefaultPluginGuid
+    ///   is the canonical value.
+    ///
+    ///   Admins who need to override the GUID can rename this plugin's
+    ///   directory or build a custom fork. The PluginIdOverride config key
+    ///   is no longer used; it remains in PluginConfiguration for
+    ///   backward compatibility with the design doc but is ignored.
     /// </summary>
     public class Plugin : BasePlugin<PluginConfiguration>
     {
@@ -45,19 +51,7 @@ namespace SameGuidPathDedup
 
         public override string Name => "Same-GUID-Path Dedup";
 
-        public override Guid Id
-        {
-            get
-            {
-                var overrideStr = Configuration?.PluginIdOverride;
-                if (!string.IsNullOrWhiteSpace(overrideStr)
-                    && Guid.TryParse(overrideStr.Trim(), out var overrideGuid))
-                {
-                    return overrideGuid;
-                }
-                return DefaultPluginGuid;
-            }
-        }
+        public override Guid Id => DefaultPluginGuid;
 
         public override string Description =>
             "Merges duplicate MediaItems rows that share the same GUID and Path. " +
