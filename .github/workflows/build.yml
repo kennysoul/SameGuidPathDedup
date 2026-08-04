@@ -25,12 +25,15 @@ jobs:
       - name: Restore
         run: dotnet restore SameGuidPathDedup/SameGuidPathDedup.csproj
 
-      - name: Build (netstandard2.0, Release)
+      # Target netstandard2.1 — needed because MediaBrowser.Model 4.9.1.90
+      # references System.Memory 4.0.2.0 which has no matching NuGet package,
+      # but netstandard2.1 brings System.Memory (Span/ReadOnlySpan/etc.)
+      # from the BCL directly.
+      - name: Build (netstandard2.1, Release)
         run: >
           dotnet build SameGuidPathDedup/SameGuidPathDedup.csproj
           --no-restore
           -c Release
-          -p:TargetFrameworks=netstandard2.0
 
       - name: Copy artifact
         run: |
