@@ -30,7 +30,7 @@
       does not propagate it transitively in netstandard2.0 builds. System.Memory
       4.5.4 ships the 4.0.2.0 assembly; earlier versions ship 4.0.1.x.
     -->
-    <PackageReference Include="System.Memory" Version="4.5.4" />
+    <PackageReference Include="System.Memory" Version="4.5.5" />
   </ItemGroup>
 
 </Project>
